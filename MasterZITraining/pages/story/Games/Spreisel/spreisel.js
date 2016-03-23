@@ -144,6 +144,7 @@ function gameBegin() {
 
 var count = 0;
 var counter;
+var answer_options= [];
 
 function timerStart() {
 
@@ -154,9 +155,17 @@ function timerStart() {
 var arrLength = choices.length;
 
 function gameStart() {
+  getLevel(4).success(function(data){
+      sessionStorage.setItem("lid", data.id);
+      startGame();
+  });
+
   counter = setInterval(timerStart, 1000);
   for (var i = arrLength; i >= 1; i--) {
     var choice = choices[Math.floor(Math.random() * choices.length)];
+    a = choice;
+    answer = {"picture_title": a.title, "alcolholic": a.alk};
+    answer_options.push(answer);
     choices.splice($.inArray(choice, choices), 1);
 
     $(".proto." + i + " .title").text(choice.title);
@@ -170,44 +179,54 @@ function gameStart() {
 }
 
 var checksum = 0;
-var points = 50;
+// var points = 50;
 var round = 1;
 var score = 0;
+
+var correct_answers = [];
+var wrong_answers = [];
+var difficulty_factor = 2;
+var answer;
 
 function check(obj) {
   var sender = (obj || window.event.target);
   var attribute = $(sender).attr("value");
   checksum++;
-
-  $(sender).css("pointer-events", "none");
-  setTimeout(unlock, 200);
-  function unlock() {
-    $(sender).css("pointer-events", "auto");
+  console.log(attribute);
+  if (attribute == "false") {
+     $(sender).css("border", "5px solid rgb(25, 255, 25)");
+     answer = $(sender).children("label.title").text();
+     correct_answers.push(answer);
+     // points += 50;
+  } else {
+     $(sender).css("border", "5px solid red");
+     answer = $(sender).children("label.title").text();
+     wrong_answers.push(answer);
+     // points -= 25;
   }
-
-  if (checksum <= 1) {
-    if (attribute == "false") {
-      $(sender).css("border", "5px solid rgb(25, 255, 25)");
-      points += 50;
+  if (checksum == 2) {
+     if(count <= 30){
+        giveAnswer(correct_answers, wrong_answers, answer_options,
+                count, difficulty_factor)
+            .success(function(data){
+                score = data.given_score_points;
+                if (score <= 0) {
+                    score = 0;
+                }
+                clearInterval(counter);
+                congrats();
+            });
     } else {
-      $(sender).css("border", "5px solid red");
-      points -= 25;
+        score = 0;
+        clearInterval(counter);
+        congrats();
     }
-  } else if (checksum == 2) {
-
-    if (attribute == "false") {
-      $(sender).css("border", "5px solid rgb(25, 255, 25)");
-      points += 50;
-    } else {
-      $(sender).css("border", "5px solid red");
-      points -= 25;
-    }
-    clearInterval(counter);
-    score = points - count;
-    if (score <= 0) {
-      score = 0;
-    }
-    congrats();
+    correct_answers = [];
+    wrong_answers = [];
+    //  clearInterval(counter);
+    //score = points - count;
+    //if (score <= 0) {
+    //  score = 0;
   }
 }
 
@@ -304,6 +323,8 @@ function gameUpdate() {
 }
 var endScore, endCounter;
 function endGameProtocol() {
+  endGame();
+  calcLevelSkill();
   endScore = roundOnePoints + roundTwoPoints + roundThreePoints;
   endCounter = roundOneTime + roundTwoTime + roundThreeTime;
   var e = "<label id='congratsMessage'>Herzlichen Glückwunsch du hast das Spiel mit " + endScore + " Punkte in insgesamt " + endCounter + " Sekunden absolviert!</label>";

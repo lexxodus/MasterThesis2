@@ -132,60 +132,75 @@ function timerStart() {
 }
 
 var arrLengthOne = protoChoices.length;
-
+var answer_options = [];
 
 function gameStart() {
+  getLevel(3).success(function(data){
+      sessionStorage.setItem("lid", data.id);
+      startGame();
+  });
+
+  // used for gacfacg
+  var a;
+  var answer;
   counter = setInterval(timerStart, 1000);
   for (var i = arrLengthOne; i >= 1; i--) {
     var protoChoice = protoChoices[Math.floor(Math.random() * protoChoices.length)];
+    a = protoChoice;
+    answer = {"picture_title": a.title, "alcolholic": a.alk};
+    answer_options.push(answer);
     protoChoices.splice($.inArray(protoChoice, protoChoices), 1);
     $(".proto" + i).css("background-image", "url("+protoChoice.url+")");
     $(".proto" + i).attr("value", protoChoice.alk);
+    $(".proto" + i).attr("title", protoChoice.title);
     $(".proto" + i).removeClass("hidden");
   }
 
 }
 
 var checksum = 0;
-var points = 50;
+// var points = 50;
 var round = 1;
 var score = 0;
 
+var correct_answers = [];
+var wrong_answers = [];
+var difficulty_factor = 2;
+var answer;
 function check(obj) {
   var sender = (obj || window.event.target);
   var attribute = $(sender).attr("value");
   checksum++;
-
-  $(sender).css("pointer-events", "none");
-  setTimeout(unlock, 200);
-  function unlock() {
-    $(sender).css("pointer-events", "auto");
+  if (attribute == "false") {
+    $(sender).css("border", "5px solid rgb(25, 255, 25)");
+    answer = $(sender).attr("title");
+    correct_answers.push(answer);
+    // points += 50;
+  } else {
+    $(sender).css("border", "5px solid red");
+    answer = $(sender).attr("title");
+    wrong_answers.push(answer);
+    // points -= 25;
   }
-
-  if (checksum <= 1) {
-    if (attribute == "false") {
-      $(sender).css("border", "5px solid rgb(25, 255, 25)");
-      points += 50;
-    } else {
-      $(sender).css("border", "5px solid red");
-      points -= 25;
-    }
-  } else if (checksum == 2) {
-
-    if (attribute == "false") {
-      $(sender).css("border", "5px solid rgb(25, 255, 25)");
-      points += 50;
-    } else {
-      $(sender).css("border", "5px solid red");
-      points -= 25;
-    }
-    clearInterval(counter);
-    score = points - count;
-    if (score <= 0) {
-      score = 0;
-    }
-
-    congrats();
+  if (checksum == 2) {
+      if(count <= 30){
+          giveAnswer(correct_answers, wrong_answers, answer_options,
+                  count, difficulty_factor)
+              .success(function(data){
+                  score = data.given_score_points;
+                  if (score <= 0) {
+                      score = 0;
+                  }
+                  clearInterval(counter);
+                  congrats();
+              });
+      } else {
+          score = 0;
+          clearInterval(counter);
+          congrats();
+      }
+      correct_answers = [];
+      wrong_answers = [];
   }
 }
 
@@ -286,6 +301,8 @@ function gameUpdate() {
 
 var endScore, endCounter;
 function endGameProtocol() {
+  endGame();
+  calcLevelSkill();
   endScore = roundOnePoints + roundTwoPoints + roundThreePoints;
   endCounter = roundOneTime + roundTwoTime + roundThreeTime;
   var e = "<label id='congratsMessage'>Herzlichen Glückwunsch du hast das Spiel mit " + endScore + " Punkte in insgesamt " + endCounter + " Sekunden absolviert!</label>";

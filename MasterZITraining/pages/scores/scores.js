@@ -24,6 +24,7 @@ $(document).ready(function () {
     $(".score").append("<tr><th>Getränkemarkt</th><th>"+storageData.afScore+"</th><th>"+storageData.afTime+" Sekunden</th></tr>");
     $(".score").append("<tr><th>Balkon</th><th>"+storageData.balkonScore+"</th><th>"+storageData.balkonTime+" Sekunden</th></tr>");
     $(".score").append("<tr><th>Spreisel</th><th>"+storageData.spreiselScore+"</th><th>"+storageData.spreiselTime+" Sekunden</th></tr>");
+    $(".score").append("<tr><th>Sportplatz</th><th>"+storageData.sportplatzScore+"</th><th>"+storageData.sportplatzTime+" Sekunden</th></tr>");
 
 
 
@@ -36,7 +37,10 @@ $(document).ready(function () {
       balkonScore: storageData.balkonScore,
       balkonTime: storageData.balkonTime,
       spreiselScore: storageData.spreiselScore,
-      spreiselTime: storageData.spreiselTime
+      spreiselTime: storageData.spreiselTime,
+      sportplatzScore: storageData.sportplatzScore,
+      sportplatzTime: storageData.sportplatzTime
+
     };
 
     $.post("http://46.101.202.146:8080/scores", scores);
