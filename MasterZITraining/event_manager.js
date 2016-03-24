@@ -1,10 +1,12 @@
 "use strict";
 
+var ROOT_URL = "http://localhost";
+
 function loginUser(name){
     var data = JSON.stringify({"name": name});
     return $.ajax({
         type: "GET",
-        url: "http://localhost/api/player/",
+        url: ROOT_URL + "/api/player/",
         data: data,
         dataType:"json",
         contentType: "application/json; charset=utf-8"
@@ -14,7 +16,7 @@ function loginUser(name){
 function getLevel(id){
     return $.ajax({
         type: "GET",
-        url: "http://localhost/api/level/" + id,
+        url: ROOT_URL + "/api/level/" + id,
         contentType: "application/json; charset=utf-8"
     });
 };
@@ -25,7 +27,7 @@ function startGame(){
     var data = JSON.stringify({"lid": lid});
     var levelInstance = $.ajax({
         type: "POST",
-        url: "http://localhost/api/level_instance/",
+        url: ROOT_URL + "/api/level_instance/",
         data: data,
         dataType:"json",
         contentType: "application/json; charset=utf-8"
@@ -35,7 +37,7 @@ function startGame(){
         data = JSON.stringify({"pid": pid, "liid": data.id});
         var levelInstance = $.ajax({
             type: "POST",
-            url: "http://localhost/api/participation/",
+            url: ROOT_URL + "/api/participation/",
             data: data,
             dataType:"json",
             contentType: "application/json; charset=utf-8",
@@ -55,14 +57,14 @@ function endGame(){
     var data = JSON.stringify({"end_time": endtime});
     $.ajax({
         type: "PUT",
-        url: "http://localhost/api/level_instance/" + liid,
+        url: ROOT_URL + "/api/level_instance/" + liid,
         data: data,
         dataType:"json",
         contentType: "application/json; charset=utf-8"
     });
     $.ajax({
         type: "PUT",
-        url: "http://localhost/api/participation/" + paid,
+        url: ROOT_URL + "/api/participation/" + paid,
         data: data,
         dataType:"json",
         contentType: "application/json; charset=utf-8"
@@ -72,7 +74,7 @@ function endGame(){
 function giveAnswer(correct_answers, wrong_answers, answer_options,
         response_time, difficulty_factor){
     var paid = sessionStorage.getItem("paid");
-    var eid = 1
+    var eid = 1;
     var correct_answers_amount = correct_answers.length;
     var wrong_answers_amount = wrong_answers.length;
     var expected_response_time = 3.0;
@@ -109,7 +111,7 @@ function giveAnswer(correct_answers, wrong_answers, answer_options,
     });
     return $.ajax({
         type: "POST",
-        url: "http://localhost/api/triggered_event/",
+        url: ROOT_URL + "/api/triggered_event/",
         data: data,
         dataType:"json",
         contentType: "application/json; charset=utf-8"
@@ -125,7 +127,7 @@ function calcLevelSkill(){
     });
     return $.ajax({
         type: "POST",
-        url: "http://localhost/api/level_skill/",
+        url: ROOT_URL + "/api/level_skill/",
         data: data,
         dataType:"json",
         contentType: "application/json; charset=utf-8"
@@ -141,7 +143,7 @@ function getHighScore(){
     });
     return $.ajax({
         type: "GET",
-        url: "http://localhost/api/level_skill/",
+        url: ROOT_URL + "/api/level_skill/",
         data: data,
         dataType:"json",
         contentType: "application/json; charset=utf-8"
